@@ -8,6 +8,7 @@
  * @package  XLSXReader
  * @author   Peter Lind <peter.e.lind@gmail.com>
  * @license  ./COPYRIGHT FreeBSD license
+ * @version  GIT: <git_id>
  * @link     http://plind.dk/xlsxreader
  */
 
@@ -722,8 +723,7 @@ class XLSXReaderRowIterator implements Iterator, countable
      *
      * @param SimpleXMLElement         $xml            Simplexml element to iterator over
      * @param XMLSXReaderSharedStrings $shared_strings Xml element containing shared strings
-     * @param int                      $row_count      Number of rows in sheet
-     * @param int                      $cell_count     Number of cells in sheet
+     * @param array                    $dimensions     Array with info about dimensions of sheet
      * @param array                    $options        Array of library options
      *
      * @access public
@@ -839,7 +839,6 @@ class XLSXReaderRowIterator implements Iterator, countable
             $this->shared_strings,
             $this->cell_start,
             $this->cell_count,
-            $this->key(),
             $this->options
         );
     }
@@ -983,13 +982,6 @@ class XLSXReaderCellIterator implements Iterator, Countable
     protected $use_spreadsheet_indexing = false;
 
     /**
-     * row position of the cell
-     *
-     * @var int
-     */
-    protected $row_position;
-
-    /**
      * public constructor
      *
      * @param SimpleXMLElement        $xml            Xml element describing the cell
@@ -1001,14 +993,13 @@ class XLSXReaderCellIterator implements Iterator, Countable
      * @access public
      * @return void
      */
-    public function __construct(SimpleXMLElement $xml, XLSXReaderSharedStrings $shared_strings, $cell_start, $cell_count, $row_position, array $options)
+    public function __construct(SimpleXMLElement $xml, XLSXReaderSharedStrings $shared_strings, $cell_start, $cell_count, array $options)
     {
         $this->xml            = $xml;
         $this->shared_strings = $shared_strings;
         $this->cell_count     = intval($cell_count);
         $this->cell_start     = intval($cell_start);
         $this->options        = $options;
-        $this->row_position   = $row_position;
 
         $this->position       = 0;
 
