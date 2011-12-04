@@ -1,0 +1,29 @@
+Introduction
+============
+This is a small one file library for reading .xlsx files in PHP.
+The main reason for creating this was finding PHPExcel and not
+being able to use it (memory constraints).
+
+Usage
+=====
+<?php
+
+require xlsxreader.php;
+$reader = new XLSXReader($zip_file_name);
+$sheets = $reader->getSheets();
+
+foreach ($sheets as $sheet) {
+    foreach ($sheet->getRowIterator() as $row_index => $row) {
+        foreach ($row->getCellIterator() as $cell_index => $cell) {
+            // do stuff
+        }
+    }
+}
+
+Author
+======
+Peter Lind aka Fake51
+
+License
+=======
+See the COPYRIGHT file
