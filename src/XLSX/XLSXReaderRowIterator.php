@@ -5,100 +5,112 @@ namespace XLSX;
 use Iterator;
 use SimpleXMLElement;
 use Countable;
+/**
+ * .xlsx file reader library
+ *
+ * PHP Version 5.3+
+ *
+ * @category XLSXReader
+ * @package  XLSXReader
+ * @author   Peter Lind <peter.e.lind@gmail.com>
+ * @license  ../../COPYRIGHT FreeBSD license
+ * @version  1.1
+ * @link     http://plind.dk/xlsxreader
+ */
 
 /**
-* row iterator - allows for iterating over rows
-*
-* @category XLSXReader
-* @package XLSXReader
-* @author Peter Lind <peter.e.lind@gmail.com>
-* @license ./COPYRIGHT FreeBSD license
-* @link http://plind.dk/xlsxreader
-*/
+ * row iterator - allows for iterating over rows
+ *
+ * @category XLSXReader
+ * @package  XLSXReader
+ * @author   Peter Lind <peter.e.lind@gmail.com>
+ * @license  ../../COPYRIGHT FreeBSD license
+ * @link     http://plind.dk/xlsxreader
+ */
 class XLSXReaderRowIterator implements Iterator, countable
 {
     /**
-* xml doc to iterate over
-*
-* @var SimpleXMLElement
-*/
+     * xml doc to iterate over
+     *
+     * @var SimpleXMLElement
+     */
     protected $xml;
 
     /**
-* current position of iterator
-*
-* @var int
-*/
+     * current position of iterator
+     *
+     * @var int
+     */
     protected $position;
 
     /**
-* number of rows in sheet
-*
-* @var int
-*/
+     * number of rows in sheet
+     *
+     * @var int
+     */
     protected $row_count = 0;
 
     /**
-* number of cells in sheet
-*
-* @var int
-*/
+     * number of cells in sheet
+     *
+     * @var int
+     */
     protected $cell_count = 0;
 
     /**
-* start of rows in sheet
-*
-* @var int
-*/
+     * start of rows in sheet
+     *
+     * @var int
+     */
     protected $row_start;
 
     /**
-* start of cells in sheet
-*
-* @var int
-*/
+     * start of cells in sheet
+     *
+     * @var int
+     */
     protected $cell_start;
 
     /**
-* shared strings xml object
-*
-* @var SimpleXMLElement
-*/
+     * shared strings xml object
+     *
+     * @var SimpleXMLElement
+     */
     protected $shared_strings;
 
     /**
-* array of options for the library
-*
-* @var array
-*/
+     * array of options for the library
+     *
+     * @var array
+     */
     protected $options;
 
     /**
-* keeps track of which rows are valid
-*
-* @var array
-*/
+     * keeps track of which rows are valid
+     *
+     * @var array
+     */
     protected $valid_positions;
 
     /**
-* integer added to key for
-* array indexing
-*
-* @var int
-*/
+     * integer added to key for
+     * array indexing
+     *
+     * @var int
+     */
     protected $key_addition = 0;
 
     /**
-* public constructor
-*
-* @param SimpleXMLElement $xml Simplexml element to iterator over
-* @param XMLSXReaderSharedStrings $shared_strings Xml element containing shared strings
-* @param array $dimensions Array with info about dimensions of sheet
-* @param array $options Array of library options
-*
-* @access public
-* @return void
-*/
+     * public constructor
+     *
+     * @param SimpleXMLElement $xml Simplexml element to iterator over
+     * @param XMLSXReaderSharedStrings $shared_strings Xml element containing shared strings
+     * @param array $dimensions Array with info about dimensions of sheet
+     * @param array $options Array of library options
+     *
+     * @access public
+     * @return void
+     */
     public function __construct(SimpleXMLElement $xml, XLSXReaderSharedStrings $shared_strings, array $dimensions, array $options)
     {
         $this->xml = $xml;
@@ -115,14 +127,14 @@ class XLSXReaderRowIterator implements Iterator, countable
     }
 
     /**
-* checks that dimensions are valid
-*
-* @param array $dimensions Array of dimensions f sheet
-*
-* @throws XLSXReaderException
-* @access protected
-* @return void
-*/
+     * checks that dimensions are valid
+     *
+     * @param array $dimensions Array of dimensions f sheet
+     *
+     * @throws XLSXReaderException
+     * @access protected
+     * @return void
+     */
     protected function fillDimensions(array $dimensions)
     {
         if (!in_array('row_start', array_keys($dimensions))) {
@@ -148,12 +160,12 @@ class XLSXReaderRowIterator implements Iterator, countable
     }
 
     /**
-* checks which positions are valid in
-* terms of rows
-*
-* @access protected
-* @return void
-*/
+     * checks which positions are valid in
+     * terms of rows
+     *
+     * @access protected
+     * @return void
+     */
     protected function checkValidPositions()
     {
         $pos = $this->row_start - 1;
@@ -170,38 +182,38 @@ class XLSXReaderRowIterator implements Iterator, countable
     }
 
     /**
-* returns number of rows in sheet
-*
-* @access public
-* @return int
-*/
+     * returns number of rows in sheet
+     *
+     * @access public
+     * @return int
+     */
     public function count()
     {
         return $this->row_count;
     }
 
     /**
-* returns the currently focused element of the rows
-*
-* @access public
-* @return XLSXReaderRowIterator
-*/
+     * returns the currently focused element of the rows
+     *
+     * @access public
+     * @return XLSXReaderRowIterator
+     */
     public function current()
     {
         return $this;
     }
 
     /**
-* returns a cell iterator for the row
-*
-* @access public
-* @return XLSXReaderCellIterator
-*/
+     * returns a cell iterator for the row
+     *
+     * @access public
+     * @return XLSXReaderCellIterator
+     */
     public function getCellIterator()
     {
-        $class = 'XLSXReaderFakeCellIterator';
+        $class = '\XLSX\XLSXReaderFakeCellIterator';
         if ($this->valid_positions[$this->position] !== false) {
-            $class = 'XLSXReaderCellIterator';
+            $class = '\XLSX\XLSXReaderCellIterator';
         }
 
         return new $class(
@@ -214,44 +226,44 @@ class XLSXReaderRowIterator implements Iterator, countable
     }
 
     /**
-* checks if the current position is valid
-*
-* @access public
-* @return bool
-*/
+     * checks if the current position is valid
+     *
+     * @access public
+     * @return bool
+     */
     public function valid()
     {
         return $this->position > -1 && $this->position < $this->row_count;
     }
 
     /**
-* increases the position by 1
-*
-* @access public
-* @return void
-*/
+     * increases the position by 1
+     *
+     * @access public
+     * @return void
+     */
     public function next()
     {
         $this->position++;
     }
 
     /**
-* rewinds the iterator position
-*
-* @access public
-* @return void
-*/
+     * rewinds the iterator position
+     *
+     * @access public
+     * @return void
+     */
     public function rewind()
     {
         $this->position = 0;
     }
 
     /**
-* returns the current position in the row-set
-*
-* @access public
-* @return int
-*/
+     * returns the current position in the row-set
+     *
+     * @access public
+     * @return int
+     */
     public function key()
     {
         if (!empty($this->options['indexing']) && $this->options['indexing'] === 'spreadsheet') {

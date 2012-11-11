@@ -5,109 +5,121 @@ namespace XLSX;
 use Iterator;
 use SimpleXMLElement;
 use Countable;
+/**
+ * .xlsx file reader library
+ *
+ * PHP Version 5.3+
+ *
+ * @category XLSXReader
+ * @package  XLSXReader
+ * @author   Peter Lind <peter.e.lind@gmail.com>
+ * @license  ../../COPYRIGHT FreeBSD license
+ * @version  1.1
+ * @link     http://plind.dk/xlsxreader
+ */
 
 /**
-* represents a row of cells in a sheet
-*
-* @category XLSXReader
-* @package XLSXReader
-* @author Peter Lind <peter.e.lind@gmail.com>
-* @license ./COPYRIGHT FreeBSD license
-* @link http://plind.dk/xlsxreader
-*/
+ * represents a row of cells in a sheet
+ *
+ * @category XLSXReader
+ * @package  XLSXReader
+ * @author   Peter Lind <peter.e.lind@gmail.com>
+ * @license  ../../COPYRIGHT FreeBSD license
+ * @link     http://plind.dk/xlsxreader
+ */
 class XLSXReaderCellIterator implements Iterator, Countable
 {
     /**
-* xml doc to iterate over
-*
-* @var SimpleXMLElement
-*/
+     * xml doc to iterate over
+     *
+     * @var SimpleXMLElement
+     */
     protected $xml;
 
     /**
-* current position of iterator
-*
-* @var int
-*/
+     * current position of iterator
+     *
+     * @var int
+     */
     protected $position;
 
     /**
-* alphabet range used for cell indexing
-*
-* @var array
-*/
+     * alphabet range used for cell indexing
+     *
+     * @var array
+     */
     protected static $alpha_range;
 
     /**
-* flipped alphabet range used for cell indexing
-*
-* @var array
-*/
+     * flipped alphabet range used for cell indexing
+     *
+     * @var array
+     */
     protected static $alpha_range_flipped;
 
     /**
-* number of cells in this sheet
-*
-* @var int
-*/
+     * number of cells in this sheet
+     *
+     * @var int
+     */
     protected $cell_count = 0;
 
     /**
-* start of cells in this sheet
-*
-* @var int
-*/
+     * start of cells in this sheet
+     *
+     * @var int
+     */
     protected $cell_start;
 
     /**
-* shared strings xml document
-*
-* @var SimpleXMLElement
-*/
+     * shared strings xml document
+     *
+     * @var SimpleXMLElement
+     */
     protected $shared_strings;
 
     /**
-* data mapped from xml document
-*
-* @var array
-*/
+     * data mapped from xml document
+     *
+     * @var array
+     */
     protected $map_data;
 
     /**
-* array of options for the library
-*
-* @var array
-*/
+     * array of options for the library
+     *
+     * @var array
+     */
     protected $options;
 
     /**
-* integer added to key for
-* array indexing
-*
-* @var int
-*/
+     * integer added to key for
+     * array indexing
+     *
+     * @var int
+     */
     protected $key_addition = 0;
 
     /**
-* whether to use spreadsheet indexing
-* for array keys
-*
-* @var bool
-*/
+     * whether to use spreadsheet indexing
+     * for array keys
+     *
+     * @var bool
+     */
     protected $use_spreadsheet_indexing = false;
 
     /**
-* public constructor
-*
-* @param SimpleXMLElement $xml Xml element describing the cell
-* @param XLSXReaderSharedStrings $shared_strings Xml element containing shared strings
-* @param int $cell_start Start position of valid cells in sheet
-* @param int $cell_count Number of cells in sheet
-* @param array $options Array of library options
-*
-* @access public
-* @return void
-*/
+     * public constructor
+     *
+     * @param SimpleXMLElement $xml Xml element describing the cell
+     * @param XLSXReaderSharedStrings $shared_strings Xml element containing shared strings
+     * @param int $cell_start Start position of valid cells in sheet
+     * @param int $cell_count Number of cells in sheet
+     * @param array $options Array of library options
+     *
+     * @access public
+     * @return void
+     */
     public function __construct(SimpleXMLElement $xml, XLSXReaderSharedStrings $shared_strings, $cell_start, $cell_count, array $options)
     {
         $this->xml = $xml;
@@ -130,22 +142,22 @@ class XLSXReaderCellIterator implements Iterator, Countable
     }
 
     /**
-* returns number of cells in sheet
-*
-* @access public
-* @return int
-*/
+     * returns number of cells in sheet
+     *
+     * @access public
+     * @return int
+     */
     public function count()
     {
         return $this->cell_count;
     }
 
     /**
-* maps out data for a row of cells
-*
-* @access protected
-* @return void
-*/
+     * maps out data for a row of cells
+     *
+     * @access protected
+     * @return void
+     */
     protected function mapData()
     {
         foreach ($this->xml->c as $cell) {
@@ -172,11 +184,11 @@ class XLSXReaderCellIterator implements Iterator, Countable
     }
 
     /**
-* returns the cell contents at the current index
-*
-* @access public
-* @return mixed
-*/
+     * returns the cell contents at the current index
+     *
+     * @access public
+     * @return mixed
+     */
     public function current()
     {
         if (!isset($this->map_data)) {
@@ -191,11 +203,11 @@ class XLSXReaderCellIterator implements Iterator, Countable
     }
 
     /**
-* returns the current position in the row
-*
-* @access public
-* @return int
-*/
+     * returns the current position in the row
+     *
+     * @access public
+     * @return int
+     */
     public function key()
     {
         if ($this->use_spreadsheet_indexing) {
@@ -206,47 +218,47 @@ class XLSXReaderCellIterator implements Iterator, Countable
     }
 
     /**
-* checks if the current cell position is valid
-*
-* @access public
-* @return bool
-*/
+     * checks if the current cell position is valid
+     *
+     * @access public
+     * @return bool
+     */
     public function valid()
     {
         return $this->position > -1 && $this->position < $this->cell_count;
     }
 
     /**
-* advances the cell pointer
-*
-* @access public
-* @return void
-*/
+     * advances the cell pointer
+     *
+     * @access public
+     * @return void
+     */
     public function next()
     {
         $this->position++;
     }
 
     /**
-* resets the cell pointer
-*
-* @access public
-* @return void
-*/
+     * resets the cell pointer
+     *
+     * @access public
+     * @return void
+     */
     public function rewind()
     {
         $this->position = 0;
     }
 
     /**
-* converts the cell position to a meaningful position
-*
-* @param string $index String index to convert to position
-*
-* @throws XLSXReaderException
-* @access public
-* @return int
-*/
+     * converts the cell position to a meaningful position
+     *
+     * @param string $index String index to convert to position
+     *
+     * @throws XLSXReaderException
+     * @access public
+     * @return int
+     */
     public static function convertFromCellPosition($index)
     {
         if (!is_string($index)) {
@@ -273,16 +285,16 @@ class XLSXReaderCellIterator implements Iterator, Countable
     }
 
     /**
-* converts row number and cell position
-* to spreadsheet position, e.g. A1
-*
-* @param int $row_position Row position
-* @param int $cell_position Cell position
-*
-* @throws XLSXReaderException
-* @access public
-* @return string
-*/
+     * converts row number and cell position
+     * to spreadsheet position, e.g. A1
+     *
+     * @param int $row_position Row position
+     * @param int $cell_position Cell position
+     *
+     * @throws XLSXReaderException
+     * @access public
+     * @return string
+     */
     public static function convertToCellPosition($row_position, $cell_position)
     {
         throw new XLSXReaderException('Not implemented yet');

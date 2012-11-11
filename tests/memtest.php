@@ -15,7 +15,7 @@ if (defined('TESTING')) {
     return;
 }
 
-require __DIR__ . '/../xlsxreader.php';
+require __DIR__ . '/../src/xlsxreader.php';
 
 $start_time = microtime(true);
 $start_mem  = memory_get_usage(true);

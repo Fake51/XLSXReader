@@ -2,94 +2,106 @@
 
 namespace XLSX;
 use SimpleXMLElement;
+/**
+ * .xlsx file reader library
+ *
+ * PHP Version 5.3+
+ *
+ * @category XLSXReader
+ * @package  XLSXReader
+ * @author   Peter Lind <peter.e.lind@gmail.com>
+ * @license  ../../COPYRIGHT FreeBSD license
+ * @version  1.1
+ * @link     http://plind.dk/xlsxreader
+ */
 
 
 /**
-* represent a single spreadsheet in the file
-*
-* @category XLSXReader
-* @package XLSXReader
-* @author Peter Lind <peter.e.lind@gmail.com>
-* @license ./COPYRIGHT FreeBSD license
-* @link http://plind.dk/xlsxreader
-*/
+ * represent a single spreadsheet in the file
+ *
+ * @category XLSXReader
+ * @package  XLSXReader
+ * @author   Peter Lind <peter.e.lind@gmail.com>
+ * @license  ../../COPYRIGHT FreeBSD license
+ * @link     http://plind.dk/xlsxreader
+ */
 class XLSXReaderSheet
 {
     /**
-* xml of the sheet file
-*
-* @var SimpleXMLElement
-*/
+     * xml of the sheet file
+     *
+     * @var SimpleXMLElement
+     */
     protected $xml;
 
     /**
-* name of the sheet
-*
-* @var string
-*/
+     * name of the sheet
+     *
+     * @var string
+     */
     protected $name;
 
     /**
-* index of the sheet
-*
-* @var int
-*/
+     * index of the sheet
+     *
+     * @var int
+     */
     protected $index;
 
     /**
-* tracks the number of rows in the sheet
-*
-* @var int
-*/
+     * tracks the number of rows in the sheet
+     *
+     * @var int
+     */
     protected $row_count;
 
     /**
-* where the rows start in the sheet
-*
-* @var int
-*/
+     * where the rows start in the sheet
+     *
+     * @var int
+     */
     protected $row_start = null;
 
     /**
-* where the cells start in the sheet
-*
-* @var int
-*/
+     * where the cells start in the sheet
+     *
+     * @var int
+     */
     protected $cell_start = null;
 
     /**
-* tracks the number of cells in the sheet
-*
-* @var int
-*/
+     * tracks the number of cells in the sheet
+     *
+     * @var int
+     */
     protected $cell_count;
 
     /**
-* XLSXReaderSharedStrings instance
-*
-* @var XLSXReaderSharedStrings
-*/
+     * XLSXReaderSharedStrings instance
+     *
+     * @var XLSXReaderSharedStrings
+     */
     protected $shared_strings;
 
     /**
-* options for the library
-*
-* @var array
-*/
+     * options for the library
+     *
+     * @var array
+     */
     protected $options;
 
     /**
-* public constructor
-*
-* @param SimpleXMLElement $xml Simplexml element of the sheet
-* @param XLSXReaderSharedStrings $shared_strings Shared strings object
-* @param string $name Name of the spreadsheet
-* @param int $index Index position of sheet
-* @param array $options Options for the library
-*
-* @access public
-* @return void
-*/
+     * public constructor
+     *
+     * @param SimpleXMLElement $xml Simplexml element of the sheet
+     * @param XLSXReaderSharedStrings $shared_strings Shared strings object
+     * @param string $name Name of the spreadsheet
+     * @param int $index Index position of sheet
+     * @param array $options Options for the library
+     *
+     * @access public
+     * @return void
+     */
     public function __construct(SimpleXMLElement $xml, XLSXReaderSharedStrings $shared_strings, $name, $index, array $options)
     {
         $this->xml = $xml;
@@ -100,35 +112,35 @@ class XLSXReaderSheet
     }
 
     /**
-* returns the name of the sheet
-*
-* @access public
-* @return string
-*/
+     * returns the name of the sheet
+     *
+     * @access public
+     * @return string
+     */
     public function getName()
     {
         return $this->name;
     }
 
     /**
-* returns the index of the sheet
-*
-* @access public
-* @return int
-*/
+     * returns the index of the sheet
+     *
+     * @access public
+     * @return int
+     */
     public function getPosition()
     {
         return $this->index;
     }
 
     /**
-* returns an iterable and array-accesible
-* object for iterating over the spreadsheet
-* rows
-*
-* @access public
-* @return XLSXReaderRowIterator
-*/
+     * returns an iterable and array-accesible
+     * object for iterating over the spreadsheet
+     * rows
+     *
+     * @access public
+     * @return XLSXReaderRowIterator
+     */
     public function getRowIterator()
     {
         return new XLSXReaderRowIterator(
@@ -145,11 +157,11 @@ class XLSXReaderSheet
     }
 
     /**
-* returns the row count of the sheet
-*
-* @access public
-* @return int
-*/
+     * returns the row count of the sheet
+     *
+     * @access public
+     * @return int
+     */
     public function getRowCount()
     {
         if (!isset($this->row_count)) {
@@ -167,11 +179,11 @@ class XLSXReaderSheet
     }
 
     /**
-* returns number of cells in sheet
-*
-* @access public
-* @return int
-*/
+     * returns number of cells in sheet
+     *
+     * @access public
+     * @return int
+     */
     public function getCellCount()
     {
         if (!isset($this->cell_count)) {
@@ -194,12 +206,12 @@ class XLSXReaderSheet
     }
 
     /**
-* returns the vertical position of the first
-* row in the sheet
-*
-* @access public
-* @return int
-*/
+     * returns the vertical position of the first
+     * row in the sheet
+     *
+     * @access public
+     * @return int
+     */
     public function getRowStart()
     {
         $this->getRowCount();
@@ -207,12 +219,12 @@ class XLSXReaderSheet
     }
 
     /**
-* returns the horizontal position of the first
-* cell in the sheet
-*
-* @access public
-* @return int
-*/
+     * returns the horizontal position of the first
+     * cell in the sheet
+     *
+     * @access public
+     * @return int
+     */
     public function getCellStart()
     {
         $this->getCellCount();

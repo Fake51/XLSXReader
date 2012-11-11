@@ -7,8 +7,8 @@
  * @category XLSXReader
  * @package  XLSXReader
  * @author   Peter Lind <peter.e.lind@gmail.com>
- * @license  ./COPYRIGHT FreeBSD license
- * @version  GIT: <git_id>
+ * @license  ../COPYRIGHT FreeBSD license
+ * @version  1.1
  * @link     http://plind.dk/xlsxreader
  */
 
@@ -18,7 +18,7 @@
  * @category XLSXReader
  * @package  XLSXReader
  * @author   Peter Lind <peter.e.lind@gmail.com>
- * @license  ./COPYRIGHT FreeBSD license
+ * @license  ../COPYRIGHT FreeBSD license
  * @link     http://plind.dk/xlsxreader
  */
 class XLSXReaderException extends Exception
@@ -32,7 +32,7 @@ class XLSXReaderException extends Exception
  * @category XLSXReader
  * @package  XLSXReader
  * @author   Peter Lind <peter.e.lind@gmail.com>
- * @license  ./COPYRIGHT FreeBSD license
+ * @license  ../COPYRIGHT FreeBSD license
  * @link     http://plind.dk/xlsxreader
  */
 class XLSXReader
@@ -194,14 +194,15 @@ class XLSXReader
  * @category XLSXReader
  * @package  XLSXReader
  * @author   Peter Lind <peter.e.lind@gmail.com>
- * @license  ./COPYRIGHT FreeBSD license
+ * @license  ../COPYRIGHT FreeBSD license
  * @link     http://plind.dk/xlsxreader
  */
 class XLSXReaderWorkBook
 {
-    const WORKBOOK_PATH       = 'xl/workbook.xml';
-    const SHARED_STRINGS_PATH = 'xl/sharedStrings.xml';
-    const WORKSHEETS_PATH     = 'xl/worksheets/';
+    const BASE_PREFIX         = 'xl/';
+    const WORKBOOK_PATH       = 'workbook.xml';
+    const WORKBOOK_RELS_PATH  = '_rels/workbook.xml.rels';
+    const SHARED_STRINGS_PATH = 'sharedStrings.xml';
 
     /**
      * xml of the workbook file
@@ -209,6 +210,13 @@ class XLSXReaderWorkBook
      * @var SimpleXMLElement
      */
     protected $xml;
+
+    /**
+     * xml of the workbook relations file
+     *
+     * @var SimpleXMLElement
+     */
+    protected $xml_rels;
 
     /**
      * array of information on sheets in spreadsheet
@@ -246,6 +254,13 @@ class XLSXReaderWorkBook
     protected $options;
 
     /**
+     * contains the relationships of the workbook
+     *
+     * @var array
+     */
+    protected $relationships = array();
+
+    /**
      * public constructor
      *
      * @param ZipArchive $zip     ZipArchive instance containing spreadsheet
@@ -262,15 +277,43 @@ class XLSXReaderWorkBook
 
         $this->zip = $zip;
 
-        if (!($this->xml = simplexml_load_string($this->zip->getFromName(self::WORKBOOK_PATH)))) {
-            throw new XLSXReaderException('Could not load workboox xml file');
+        if (!($this->xml = simplexml_load_string($this->zip->getFromName(self::BASE_PREFIX . self::WORKBOOK_PATH)))) {
+            throw new XLSXReaderException('Could not load workbook xml file');
+        }
+
+        if (!($this->xml_rels = simplexml_load_string($this->zip->getFromName(self::BASE_PREFIX . self::WORKBOOK_RELS_PATH)))) {
+            throw new XLSXReaderException('Could not load workbook relations xml file');
         }
 
         $this->options = $options;
 
+        $this->extractRelationInformation();
         $this->extractSheetInformation();
         $this->loadSharedStrings();
         $this->loadSheets();
+    }
+
+    /**
+     * runs through the relations xml to extract information
+     * about workbook relations - including worksheet names
+     *
+     * @access protected
+     * @return void
+     */
+    protected function extractRelationInformation()
+    {
+        if (!$this->xml_rels->Relationship) {
+            throw new XLSXReaderException('Could not load workbook relations from xml file');
+        }
+
+        foreach ($this->xml_rels->Relationship as $relationship) {
+            $id                       = (string) $relationship['Id'];
+            $this->relationships[$id] = array(
+                'id'     => $id,
+                'type'   => (string) $relationship['Type'],
+                'target' => (string) $relationship['Target'],
+            );
+        }
     }
 
     /**
@@ -289,12 +332,27 @@ class XLSXReaderWorkBook
             throw new XLSXReaderException('Workbook is malformed, cannot read information');
         }
 
+        $namespaces = $this->xml->getNameSpaces(true);
+        if (!isset($namespaces['r'])) {
+            throw new XLSXReaderException('Workbook lacks relationship namespace, cannot load worksheets');
+        }
+
         foreach ($this->xml->sheets->sheet as $sheet) {
-            if (!isset($sheet['sheetId'], $sheet['name'])) {
+            $attributes = $sheet->attributes($namespaces['r']);
+            if (!$attributes->id) {
+                throw new XLSXReaderException('Workbook sheet info malformed, no relational ID');
+            }
+
+            $sheet_id = (string) $attributes->id;
+            if (!isset($this->relationships[$sheet_id])) {
+                throw new XLSXReaderException('Workbook sheet info invalid, refers to non-existing relation');
+            }
+
+            if (!isset($sheet['name'])) {
                 throw new XLSXReaderException('Workbook is malformed, cannot read information');
             }
 
-            $this->sheet_info[(int) $sheet['sheetId']] = (string) $sheet['name'];
+            $this->sheet_info[$sheet_id] = (string) $sheet['name'];
         }
     }
 
@@ -309,7 +367,7 @@ class XLSXReaderWorkBook
     protected function loadSharedStrings()
     {
         $xml = null;
-        if ($xml_string = $this->zip->getFromName(self::SHARED_STRINGS_PATH)) {
+        if ($xml_string = $this->zip->getFromName(self::BASE_PREFIX . self::SHARED_STRINGS_PATH)) {
             $xml = simplexml_load_string($xml_string);
         }
 
@@ -326,12 +384,18 @@ class XLSXReaderWorkBook
      */
     protected function loadSheets()
     {
+        $index = 1;
         foreach ($this->sheet_info as $id => $name) {
-            if (!($xml_string = $this->zip->getFromName(self::WORKSHEETS_PATH . 'sheet' . $id . '.xml'))) {
+            if (!isset($this->relationships[$id])) {
+                throw new XLSXReaderException('Spreadsheet is malformed - refers to non-existing relationship');
+            }
+
+            if (!($xml_string = $this->zip->getFromName(self::BASE_PREFIX . $this->relationships[$id]['target']))) {
                 throw new XLSXReaderException('Spreadsheet is malformed - cannot load worksheets');
             }
 
-            $this->sheets[$id] = new XLSXReaderSheet(simplexml_load_string($xml_string), $this->shared_strings, $name, $id, $this->options);
+            $this->sheets[$index] = new XLSXReaderSheet(simplexml_load_string($xml_string), $this->shared_strings, $name, $index, $this->options);
+            $index++;
         }
     }
 
@@ -376,7 +440,7 @@ class XLSXReaderWorkBook
  * @category XLSXReader
  * @package  XLSXReader
  * @author   Peter Lind <peter.e.lind@gmail.com>
- * @license  ./COPYRIGHT FreeBSD license
+ * @license  ../COPYRIGHT FreeBSD license
  * @link     http://plind.dk/xlsxreader
  */
 class XLSXReaderSheet
@@ -592,7 +656,7 @@ class XLSXReaderSheet
  * @category XLSXReader
  * @package  XLSXReader
  * @author   Peter Lind <peter.e.lind@gmail.com>
- * @license  ./COPYRIGHT FreeBSD license
+ * @license  ../COPYRIGHT FreeBSD license
  * @link     http://plind.dk/xlsxreader
  */
 class XLSXReaderSharedStrings
@@ -642,7 +706,7 @@ class XLSXReaderSharedStrings
  * @category XLSXReader
  * @package  XLSXReader
  * @author   Peter Lind <peter.e.lind@gmail.com>
- * @license  ./COPYRIGHT FreeBSD license
+ * @license  ../COPYRIGHT FreeBSD license
  * @link     http://plind.dk/xlsxreader
  */
 class XLSXReaderRowIterator implements Iterator, countable
@@ -897,7 +961,7 @@ class XLSXReaderRowIterator implements Iterator, countable
  * @category XLSXReader
  * @package  XLSXReader
  * @author   Peter Lind <peter.e.lind@gmail.com>
- * @license  ./COPYRIGHT FreeBSD license
+ * @license  ../COPYRIGHT FreeBSD license
  * @link     http://plind.dk/xlsxreader
  */
 class XLSXReaderCellIterator implements Iterator, Countable
@@ -1204,7 +1268,7 @@ class XLSXReaderCellIterator implements Iterator, Countable
  * @category XLSXReader
  * @package  XLSXReader
  * @author   Peter Lind <peter.e.lind@gmail.com>
- * @license  ./COPYRIGHT FreeBSD license
+ * @license  ../COPYRIGHT FreeBSD license
  * @link     http://plind.dk/xlsxreader
  */
 class XLSXReaderFakeCellIterator extends XLSXReaderCellIterator

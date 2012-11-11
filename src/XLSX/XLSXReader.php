@@ -3,66 +3,78 @@
 namespace XLSX;
 
 use ZipArchive;
+/**
+ * .xlsx file reader library
+ *
+ * PHP Version 5.3+
+ *
+ * @category XLSXReader
+ * @package  XLSXReader
+ * @author   Peter Lind <peter.e.lind@gmail.com>
+ * @license  ../../COPYRIGHT FreeBSD license
+ * @version  1.1
+ * @link     http://plind.dk/xlsxreader
+ */
 
 /**
-* base class, gives access to the .xlsx file
-* contents in terms of the worksheets
-*
-* @category XLSXReader
-* @package XLSXReader
-* @author Peter Lind <peter.e.lind@gmail.com>
-* @license ./COPYRIGHT FreeBSD license
-* @link http://plind.dk/xlsxreader
-*/
+ * base class, gives access to the .xlsx file
+ * contents in terms of the worksheets
+ *
+ * @category XLSXReader
+ * @package  XLSXReader
+ * @author   Peter Lind <peter.e.lind@gmail.com>
+ * @license  ../../COPYRIGHT FreeBSD license
+ * @link     http://plind.dk/xlsxreader
+ */
 class XLSXReader
 {
     /**
-* name of .xlsx file
-*
-* @var string
-*/
+     * name of .xlsx file
+     *
+     * @var string
+     */
     protected $filename;
 
     /**
-* ZipArchive of spreadsheet
-*
-* @var ZipArchive
-*/
+     * ZipArchive of spreadsheet
+     *
+     * @var ZipArchive
+     */
     protected $zip;
 
     /**
-* XLSXReaderWorkBook instance
-*
-* @var XLSXReaderWorkBook
-*/
+     * XLSXReaderWorkBook instance
+     *
+     * @var XLSXReaderWorkBook
+     */
     protected $workbook;
 
     /**
-* default options of the library
-*
-* @var array
-*/
+     * default options of the library
+     *
+     * @var array
+     */
     protected $default_options = array(
         'read_minified' => false,
         'indexing' => 'php-array',
     );
 
     /**
-* manually set options
-*
-* @var array
-*/
+     * manually set options
+     *
+     * @var array
+     */
     protected $options = array();
 
     /**
-* public constructor
-*
-* @param string $filename Name of .xlsx file to read
-*
-* @throws XLSXReaderException
-* @access public
-* @return void
-*/
+     * public constructor
+     *
+     * @param string $filename Name of .xlsx file to read
+     *
+     * @throws XLSXReaderException
+     * @access public
+     * @return void
+     */
     public function __construct($filename)
     {
         if (!is_file($filename)) {
@@ -84,15 +96,15 @@ class XLSXReader
     }
 
     /**
-* sets the value for an option
-*
-* @param string $option Name of option to set
-* @param mixed $value Value to set for the option
-*
-* @throws XLSXReaderException
-* @access public
-* @return $this
-*/
+     * sets the value for an option
+     *
+     * @param string $option Name of option to set
+     * @param mixed $value Value to set for the option
+     *
+     * @throws XLSXReaderException
+     * @access public
+     * @return $this
+     */
     public function setOption($option, $value)
     {
         if (!in_array($option, $this->getAvailableOptions())) {
@@ -104,58 +116,58 @@ class XLSXReader
     }
 
     /**
-* returns the options set or defaults
-*
-* @access public
-* @return array
-*/
+     * returns the options set or defaults
+     *
+     * @access public
+     * @return array
+     */
     public function getOptions()
     {
         return array_merge($this->default_options, $this->options);
     }
 
     /**
-* returns array of recognized settings
-*
-* @access public
-* @return array
-*/
+     * returns array of recognized settings
+     *
+     * @access public
+     * @return array
+     */
     public function getAvailableOptions()
     {
         return array_keys($this->default_options);
     }
 
     /**
-* returns array of sheet objects
-* based on available sheets in spreadsheet
-* file
-*
-* @access public
-* @return array
-*/
+     * returns array of sheet objects
+     * based on available sheets in spreadsheet
+     * file
+     *
+     * @access public
+     * @return array
+     */
     public function getSheets()
     {
         return $this->getWorkBook()->getSheets();
     }
 
     /**
-* returns the shared strings instance
-*
-* @access public
-* @return XLSXReaderSharedStrings
-*/
+     * returns the shared strings instance
+     *
+     * @access public
+     * @return XLSXReaderSharedStrings
+     */
     public function getSharedStrings()
     {
         return $this->getWorkBook()->getSharedStrings();
     }
 
     /**
-* returns the workbook class
-* for the spreadsheet
-*
-* @access public
-* @return XLSXReaderWorkBook
-*/
+     * returns the workbook class
+     * for the spreadsheet
+     *
+     * @access public
+     * @return XLSXReaderWorkBook
+     */
     public function getWorkBook()
     {
         if (empty($this->workbook)) {

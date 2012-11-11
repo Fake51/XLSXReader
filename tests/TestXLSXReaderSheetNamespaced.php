@@ -1,4 +1,5 @@
 <?php
+use \XLSX;
 /**
  * .xlsx file reader library test
  *
@@ -7,11 +8,11 @@
  * @category XLSXReader
  * @package  Tests
  * @author   Peter Lind <peter.e.lind@gmail.com>
- * @license  ./COPYRIGHT FreeBSD license
+ * @license  ../COPYRIGHT FreeBSD license
  * @link     http://plind.dk/xlsxreader
  */
 
-require 'bootstrap.php';
+require 'bootstrap_namespaced.php';
 
 /**
  * tests the sheet class
@@ -19,10 +20,10 @@ require 'bootstrap.php';
  * @category XLSXReader
  * @package  Tests
  * @author   Peter Lind <peter.e.lind@gmail.com>
- * @license  ./COPYRIGHT FreeBSD license
+ * @license  ../COPYRIGHT FreeBSD license
  * @link     http://plind.dk/xlsxreader
  */
-class TestXLSXReaderSheet extends PHPUnit_Framework_TestCase
+class TestXLSXReaderSheetNamespaced extends PHPUnit_Framework_TestCase
 {
     /**
      * checks to make sure sheets report
@@ -33,7 +34,7 @@ class TestXLSXReaderSheet extends PHPUnit_Framework_TestCase
      */
     public function testBaseValues()
     {
-        $reader = new XLSXReader('test.xlsx');
+        $reader = new XLSX\XLSXReader('test.xlsx');
 
         $sheets = $reader->getSheets();
         $this->assertTrue(count($sheets) === 3);
@@ -54,11 +55,11 @@ class TestXLSXReaderSheet extends PHPUnit_Framework_TestCase
      */
     public function testGetIterator()
     {
-        $reader = new XLSXReader('test.xlsx');
+        $reader = new XLSX\XLSXReader('test.xlsx');
         $sheets = $reader->getSheets();
-        $this->assertTrue($sheets[0]->getRowIterator() instanceof XLSXReaderRowIterator);
-        $this->assertTrue($sheets[1]->getRowIterator() instanceof XLSXReaderRowIterator);
-        $this->assertTrue($sheets[2]->getRowIterator() instanceof XLSXReaderRowIterator);
+        $this->assertTrue($sheets[0]->getRowIterator() instanceof XLSX\XLSXReaderRowIterator);
+        $this->assertTrue($sheets[1]->getRowIterator() instanceof XLSX\XLSXReaderRowIterator);
+        $this->assertTrue($sheets[2]->getRowIterator() instanceof XLSX\XLSXReaderRowIterator);
     }
 
     /**
@@ -69,19 +70,19 @@ class TestXLSXReaderSheet extends PHPUnit_Framework_TestCase
      */
     public function testGetRowCount()
     {
-        $reader = new XLSXReader('test.xlsx');
+        $reader = new XLSX\XLSXReader('test.xlsx');
         $sheets = $reader->getSheets();
         $this->assertTrue($sheets[0]->getRowCount() === 2);
         $this->assertTrue($sheets[1]->getRowCount() === 0);
         $this->assertTrue($sheets[2]->getRowCount() === 0);
 
-        $reader = new XLSXReader('test2.xlsx');
+        $reader = new XLSX\XLSXReader('test2.xlsx');
         $sheets = $reader->getSheets();
         $this->assertTrue($sheets[0]->getRowCount() === 5, $sheets[0]->getRowCount());
         $this->assertTrue($sheets[1]->getRowCount() === 0);
         $this->assertTrue($sheets[2]->getRowCount() === 0);
 
-        $reader = new XLSXReader('test2.xlsx');
+        $reader = new XLSX\XLSXReader('test2.xlsx');
         $reader->setOption('read_minified', true);
         $sheets = $reader->getSheets();
         $this->assertTrue($sheets[0]->getRowCount() === 3, $sheets[0]->getRowCount());
@@ -97,19 +98,19 @@ class TestXLSXReaderSheet extends PHPUnit_Framework_TestCase
      */
     public function testGetCellCount()
     {
-        $reader = new XLSXReader('test.xlsx');
+        $reader = new XLSX\XLSXReader('test.xlsx');
         $sheets = $reader->getSheets();
         $this->assertTrue($sheets[0]->getCellCount() === 2);
         $this->assertTrue($sheets[1]->getCellCount() === 0);
         $this->assertTrue($sheets[2]->getCellCount() === 0);
 
-        $reader = new XLSXReader('test2.xlsx');
+        $reader = new XLSX\XLSXReader('test2.xlsx');
         $sheets = $reader->getSheets();
         $this->assertTrue($sheets[0]->getCellCount() === 4);
         $this->assertTrue($sheets[1]->getCellCount() === 0);
         $this->assertTrue($sheets[2]->getCellCount() === 0);
 
-        $reader = new XLSXReader('test2.xlsx');
+        $reader = new XLSX\XLSXReader('test2.xlsx');
         $reader->setOption('read_minified', true);
         $sheets = $reader->getSheets();
         $this->assertTrue($sheets[0]->getCellCount() === 2);
@@ -125,7 +126,7 @@ class TestXLSXReaderSheet extends PHPUnit_Framework_TestCase
      */
     public function testGetStart()
     {
-        $reader = new XLSXReader('test.xlsx');
+        $reader = new XLSX\XLSXReader('test.xlsx');
         $sheets = $reader->getSheets();
         $this->assertTrue($sheets[0]->getRowStart() === 1);
         $this->assertTrue($sheets[0]->getCellStart() === 1);
@@ -134,7 +135,7 @@ class TestXLSXReaderSheet extends PHPUnit_Framework_TestCase
         $this->assertNull($sheets[2]->getRowStart());
         $this->assertNull($sheets[2]->getCellStart());
 
-        $reader = new XLSXReader('test2.xlsx');
+        $reader = new XLSX\XLSXReader('test2.xlsx');
         $sheets = $reader->getSheets();
         $this->assertTrue($sheets[0]->getRowStart() === 1);
         $this->assertTrue($sheets[0]->getCellStart() === 1);
@@ -143,7 +144,7 @@ class TestXLSXReaderSheet extends PHPUnit_Framework_TestCase
         $this->assertNull($sheets[2]->getRowStart());
         $this->assertNull($sheets[2]->getCellStart());
 
-        $reader = new XLSXReader('test2.xlsx');
+        $reader = new XLSX\XLSXReader('test2.xlsx');
         $reader->setOption('read_minified', true);
         $sheets = $reader->getSheets();
         $this->assertTrue($sheets[0]->getRowStart() === 3);
